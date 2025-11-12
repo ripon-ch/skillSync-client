@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { uploadToImgbb } from '../lib/imgbb';
-import { COURSE_CATEGORIES } from '../../shared/api';
+import { COURSE_CATEGORIES } from '../../../shared/api';
 import { toast } from 'sonner';
 import { Loader, ArrowLeft } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';

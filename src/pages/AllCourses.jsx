@@ -8,7 +8,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import useCourses from '../hooks/useCourses.js'; 
 
 // NOTE: You still need COURSE_CATEGORIES here for the <select> element
-import { COURSE_CATEGORIES } from '../../shared/api.js'; 
+import { COURSE_CATEGORIES } from '../../../shared/api.js'; 
 
 export default function AllCourses() {
   // 🚨 REPLACED ALL STATE AND FETCHING LOGIC WITH THIS HOOK 🚨

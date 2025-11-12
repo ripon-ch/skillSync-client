@@ -1,12 +1,12 @@
 /** Import Google Fonts */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap");
 
-/* Tailwind base */
+/* Tailwind base, components, and utilities must come BEFORE custom CSS */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Theme Variables */
+/* Theme Variables and Global base styles */
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -71,7 +71,8 @@
 
   /* Global base styles */
   * {
-    @apply border-border box-border;
+    /* Tailwind's box-border resets box-sizing to border-box */
+    @apply border-border box-border; 
   }
 
   body {
@@ -88,10 +89,11 @@
     overflow-x: auto;
     white-space: pre;
   }
-}
+} /* END @layer base */
+
 
 /* ===================================
-   Responsive & Component Styles
+    Responsive & Component Styles
 =================================== */
 
 /* Hero Section */

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { uploadToImgbb } from '../lib/imgbb';
 import { useAuth } from '../context/AuthContext';
-import { COURSE_CATEGORIES } from '../../shared/api';
+import { COURSE_CATEGORIES } from '../../../shared/api.js';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { Loader, ArrowLeft } from 'lucide-react';
 
