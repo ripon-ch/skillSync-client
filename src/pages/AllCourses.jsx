@@ -1,57 +1,25 @@
-import { useEffect, useState } from 'react';
+// Path: ~/skillSync/client/src/pages/AllCourses.jsx
+
 import { Link } from 'react-router-dom';
-import { toast } from 'sonner';
-import LoadingSpinner from '../components/LoadingSpinner';
-import { COURSE_CATEGORIES } from '../../shared/api';
 import { Search, Filter } from 'lucide-react';
+import LoadingSpinner from '../components/LoadingSpinner';
+
+// 🚨 NEW IMPORT 🚨
+import useCourses from '../hooks/useCourses.js'; 
+
+// NOTE: You still need COURSE_CATEGORIES here for the <select> element
+import { COURSE_CATEGORIES } from '../../shared/api.js'; 
 
 export default function AllCourses() {
-  const [courses, setCourses] = useState([]);
-  const [filteredCourses, setFilteredCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
-
-  useEffect(() => {
-    fetchCourses();
-  }, []);
-
-  useEffect(() => {
-    handleFilter();
-  }, [searchTerm, selectedCategory, courses]);
-
-  const fetchCourses = async () => {
-    try {
-      const response = await fetch('/api/courses');
-      if (!response.ok) throw new Error('Failed to fetch courses');
-      const data = await response.json();
-      setCourses(data);
-      setFilteredCourses(data);
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to load courses');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleFilter = () => {
-    let filtered = [...courses];
-
-    // Search filter
-    if (searchTerm.trim() !== '') {
-      filtered = filtered.filter((course) =>
-        course.title.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Category filter
-    if (selectedCategory !== 'All') {
-      filtered = filtered.filter((course) => course.category === selectedCategory);
-    }
-
-    setFilteredCourses(filtered);
-  };
+  // 🚨 REPLACED ALL STATE AND FETCHING LOGIC WITH THIS HOOK 🚨
+  const {
+    filteredCourses,
+    loading,
+    searchTerm,
+    setSearchTerm,
+    selectedCategory,
+    setSelectedCategory,
+  } = useCourses();
 
   if (loading) return <LoadingSpinner />;
 
@@ -110,6 +78,7 @@ export default function AllCourses() {
                 key={course._id}
                 className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-shadow"
               >
+                {/* ... (Rest of the course card rendering remains the same) ... */}
                 <img
                   src={course.image}
                   alt={course.title}
