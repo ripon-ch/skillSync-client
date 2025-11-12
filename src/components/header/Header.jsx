@@ -9,6 +9,8 @@ import ProfileMenu from './ProfileMenu';
 import ThemeToggle from './ThemeToggle';
 import Avatar from './Avatar';
 import AuthButtons from './AuthButtons';
+import ThemeToggle from '../components/ThemeToggle'; 
+<ThemeToggle />
 
 export default function Header() {
   const { user, logout } = useAuth();
