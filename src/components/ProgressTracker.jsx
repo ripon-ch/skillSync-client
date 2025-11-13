@@ -1,5 +1,16 @@
 import { useState, useEffect } from 'react';
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer
+} from 'recharts';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
 import LoadingSpinner from './LoadingSpinner';
@@ -25,7 +36,11 @@ export default function ProgressTracker() {
       const ct = response.headers.get('content-type') || '';
       if (ct.includes('application/json')) return await response.json();
       const text = await response.text();
-      try { return text ? JSON.parse(text) : {}; } catch { return {}; }
+      try {
+        return text ? JSON.parse(text) : {};
+      } catch {
+        return {};
+      }
     } catch (e) {
       console.error('Progress parse error:', e);
       return {};
@@ -92,29 +107,35 @@ export default function ProgressTracker() {
     : 0;
 
   return (
-    <div style={{
-      padding: '2rem',
-      background: '#ffffff',
-      borderRadius: '0.75rem',
-      marginTop: '2rem'
-    }}>
-      <h2 style={{
-        fontSize: '1.75rem',
-        fontWeight: '700',
-        color: '#1f2937',
-        marginBottom: '2rem'
-      }}>
+    <div
+      style={{
+        padding: '2rem',
+        background: '#ffffff',
+        borderRadius: '0.75rem',
+        marginTop: '2rem'
+      }}
+    >
+      <h2
+        style={{
+          fontSize: '1.75rem',
+          fontWeight: '700',
+          color: '#1f2937',
+          marginBottom: '2rem'
+        }}
+      >
         Your Learning Progress
       </h2>
 
       {enrollments.length === 0 ? (
-        <div style={{
-          padding: '3rem 2rem',
-          background: '#f9fafb',
-          borderRadius: '0.75rem',
-          textAlign: 'center',
-          color: '#6b7280'
-        }}>
+        <div
+          style={{
+            padding: '3rem 2rem',
+            background: '#f9fafb',
+            borderRadius: '0.75rem',
+            textAlign: 'center',
+            color: '#6b7280'
+          }}
+        >
           <p style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>
             No enrolled courses yet
           </p>
@@ -123,25 +144,31 @@ export default function ProgressTracker() {
       ) : (
         <>
           {/* Summary Stats */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '1.5rem',
-            marginBottom: '3rem'
-          }}>
-            <div style={{
-              padding: '1.5rem',
-              background: 'linear-gradient(135deg, rgba(34, 3, 89, 0.05), rgba(73, 6, 191, 0.05))',
-              border: '1px solid rgba(94, 63, 222, 0.1)',
-              borderRadius: '0.75rem',
-              textAlign: 'center'
-            }}>
-              <div style={{
-                fontSize: '2rem',
-                fontWeight: '700',
-                color: '#4906BF',
-                marginBottom: '0.5rem'
-              }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '1.5rem',
+              marginBottom: '3rem'
+            }}
+          >
+            <div
+              style={{
+                padding: '1.5rem',
+                background: 'linear-gradient(135deg, rgba(34, 3, 89, 0.05), rgba(73, 6, 191, 0.05))',
+                border: '1px solid rgba(94, 63, 222, 0.1)',
+                borderRadius: '0.75rem',
+                textAlign: 'center'
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '2rem',
+                  fontWeight: '700',
+                  color: '#4906BF',
+                  marginBottom: '0.5rem'
+                }}
+              >
                 {enrollments.length}
               </div>
               <p style={{ color: '#6b7280', margin: 0 }}>
@@ -149,19 +176,23 @@ export default function ProgressTracker() {
               </p>
             </div>
 
-            <div style={{
-              padding: '1.5rem',
-              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.05))',
-              border: '1px solid rgba(16, 185, 129, 0.1)',
-              borderRadius: '0.75rem',
-              textAlign: 'center'
-            }}>
-              <div style={{
-                fontSize: '2rem',
-                fontWeight: '700',
-                color: '#10b981',
-                marginBottom: '0.5rem'
-              }}>
+            <div
+              style={{
+                padding: '1.5rem',
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(5, 150, 105, 0.05))',
+                border: '1px solid rgba(16, 185, 129, 0.1)',
+                borderRadius: '0.75rem',
+                textAlign: 'center'
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '2rem',
+                  fontWeight: '700',
+                  color: '#10b981',
+                  marginBottom: '0.5rem'
+                }}
+              >
                 {completedCourses}
               </div>
               <p style={{ color: '#6b7280', margin: 0 }}>
@@ -169,19 +200,23 @@ export default function ProgressTracker() {
               </p>
             </div>
 
-            <div style={{
-              padding: '1.5rem',
-              background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.05), rgba(217, 119, 6, 0.05))',
-              border: '1px solid rgba(251, 191, 36, 0.1)',
-              borderRadius: '0.75rem',
-              textAlign: 'center'
-            }}>
-              <div style={{
-                fontSize: '2rem',
-                fontWeight: '700',
-                color: '#f59e0b',
-                marginBottom: '0.5rem'
-              }}>
+            <div
+              style={{
+                padding: '1.5rem',
+                background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.05), rgba(217, 119, 6, 0.05))',
+                border: '1px solid rgba(251, 191, 36, 0.1)',
+                borderRadius: '0.75rem',
+                textAlign: 'center'
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '2rem',
+                  fontWeight: '700',
+                  color: '#f59e0b',
+                  marginBottom: '0.5rem'
+                }}
+              >
                 {averageProgress}%
               </div>
               <p style={{ color: '#6b7280', margin: 0 }}>
@@ -191,25 +226,31 @@ export default function ProgressTracker() {
           </div>
 
           {/* Charts Grid */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-            gap: '2rem',
-            marginBottom: '3rem'
-          }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+              gap: '2rem',
+              marginBottom: '3rem'
+            }}
+          >
             {/* Bar Chart - Course Progress */}
-            <div style={{
-              padding: '1.5rem',
-              background: '#f9fafb',
-              borderRadius: '0.75rem',
-              border: '1px solid #e5e7eb'
-            }}>
-              <h3 style={{
-                fontSize: '1.125rem',
-                fontWeight: '700',
-                color: '#1f2937',
-                marginBottom: '1rem'
-              }}>
+            <div
+              style={{
+                padding: '1.5rem',
+                background: '#f9fafb',
+                borderRadius: '0.75rem',
+                border: '1px solid #e5e7eb'
+              }}
+            >
+              <h3
+                style={{
+                  fontSize: '1.125rem',
+                  fontWeight: '700',
+                  color: '#1f2937',
+                  marginBottom: '1rem'
+                }}
+              >
                 Course Progress
               </h3>
               {courseProgressData.length > 0 ? (
@@ -232,22 +273,26 @@ export default function ProgressTracker() {
             </div>
 
             {/* Pie Chart - Completion Status */}
-            <div style={{
-              padding: '1.5rem',
-              background: '#f9fafb',
-              borderRadius: '0.75rem',
-              border: '1px solid #e5e7eb',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center'
-            }}>
-              <h3 style={{
-                fontSize: '1.125rem',
-                fontWeight: '700',
-                color: '#1f2937',
-                marginBottom: '1rem',
-                alignSelf: 'flex-start'
-              }}>
+            <div
+              style={{
+                padding: '1.5rem',
+                background: '#f9fafb',
+                borderRadius: '0.75rem',
+                border: '1px solid #e5e7eb',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center'
+              }}
+            >
+              <h3
+                style={{
+                  fontSize: '1.125rem',
+                  fontWeight: '700',
+                  color: '#1f2937',
+                  marginBottom: '1rem',
+                  alignSelf: 'flex-start'
+                }}
+              >
                 Course Status
               </h3>
               {progressDistribution[0].value + progressDistribution[1].value > 0 ? (
@@ -275,45 +320,63 @@ export default function ProgressTracker() {
           </div>
 
           {/* Detailed Progress Table */}
-          <div style={{
-            padding: '1.5rem',
-            background: '#f9fafb',
-            borderRadius: '0.75rem',
-            border: '1px solid #e5e7eb',
-            overflowX: 'auto'
-          }}>
-            <h3 style={{
-              fontSize: '1.125rem',
-              fontWeight: '700',
-              color: '#1f2937',
-              marginBottom: '1rem'
-            }}>
+          <div
+            style={{
+              padding: '1.5rem',
+              background: '#f9fafb',
+              borderRadius: '0.75rem',
+              border: '1px solid #e5e7eb',
+              overflowX: 'auto'
+            }}
+          >
+            <h3
+              style={{
+                fontSize: '1.125rem',
+                fontWeight: '700',
+                color: '#1f2937',
+                marginBottom: '1rem'
+              }}
+            >
               Detailed Progress
             </h3>
-            <table style={{
-              width: '100%',
-              borderCollapse: 'collapse'
-            }}>
+            <table
+              style={{
+                width: '100%',
+                borderCollapse: 'collapse'
+              }}
+            >
               <thead>
                 <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
-                  <th style={{
-                    padding: '0.75rem',
-                    textAlign: 'left',
-                    fontWeight: '600',
-                    color: '#374151'
-                  }}>Course Name</th>
-                  <th style={{
-                    padding: '0.75rem',
-                    textAlign: 'center',
-                    fontWeight: '600',
-                    color: '#374151'
-                  }}>Progress</th>
-                  <th style={{
-                    padding: '0.75rem',
-                    textAlign: 'center',
-                    fontWeight: '600',
-                    color: '#374151'
-                  }}>Status</th>
+                  <th
+                    style={{
+                      padding: '0.75rem',
+                      textAlign: 'left',
+                      fontWeight: '600',
+                      color: '#374151'
+                    }}
+                  >
+                    Course Name
+                  </th>
+                  <th
+                    style={{
+                      padding: '0.75rem',
+                      textAlign: 'center',
+                      fontWeight: '600',
+                      color: '#374151'
+                    }}
+                  >
+                    Progress
+                  </th>
+                  <th
+                    style={{
+                      padding: '0.75rem',
+                      textAlign: 'center',
+                      fontWeight: '600',
+                      color: '#374151'
+                    }}
+                  >
+                    Status
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -322,55 +385,69 @@ export default function ProgressTracker() {
                   const isCompleted = courseProgress?.isCompleted || false;
                   return (
                     <tr key={idx} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                      <td style={{
-                        padding: '0.75rem',
-                        color: '#1f2937'
-                      }}>
+                      <td
+                        style={{
+                          padding: '0.75rem',
+                          color: '#1f2937'
+                        }}
+                      >
                         {course.name}
                       </td>
-                      <td style={{
-                        padding: '0.75rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem'
-                      }}>
-                        <div style={{
-                          flex: 1,
-                          maxWidth: '200px',
-                          height: '8px',
-                          background: '#e5e7eb',
-                          borderRadius: '9999px',
-                          overflow: 'hidden'
-                        }}>
-                          <div style={{
-                            height: '100%',
-                            background: 'linear-gradient(to right, #4906BF, #8b5cf6)',
-                            width: `${course.progress}%`,
-                            transition: 'width 0.3s ease'
-                          }} />
+                      <td
+                        style={{
+                          padding: '0.75rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.5rem'
+                        }}
+                      >
+                        <div
+                          style={{
+                            flex: 1,
+                            maxWidth: '200px',
+                            height: '8px',
+                            background: '#e5e7eb',
+                            borderRadius: '9999px',
+                            overflow: 'hidden'
+                          }}
+                        >
+                          <div
+                            style={{
+                              height: '100%',
+                              background: 'linear-gradient(to right, #4906BF, #8b5cf6)',
+                              width: `${course.progress}%`,
+                              transition: 'width 0.3s ease'
+                            }}
+                          />
                         </div>
-                        <span style={{
-                          fontWeight: '600',
-                          color: '#1f2937',
-                          minWidth: '50px',
-                          textAlign: 'right'
-                        }}>
+                        <span
+                          style={{
+                            fontWeight: '600',
+                            color: '#1f2937',
+                            minWidth: '50px',
+                            textAlign: 'right'
+                          }}
+                        >
                           {course.progress}%
                         </span>
                       </td>
-                      <td style={{
-                        padding: '0.75rem',
-                        textAlign: 'center'
-                      }}>
-                        <span style={{
-                          padding: '0.25rem 0.75rem',
-                          borderRadius: '9999px',
-                          fontSize: '0.875rem',
-                          fontWeight: '600',
-                          background: isCompleted ? '#d1fae5' : '#fef3c7',
-                          color: isCompleted ? '#065f46' : '#92400e'
-                        }}>
+                      <td
+                        style={{
+                          padding: '0.75rem',
+                          textAlign: 'center'
+                        }}
+                      >
+                        <span
+                          style={{
+                            padding: '0.25rem 0.75rem',
+                            borderRadius: '9999px',
+                            fontSize: '0.875rem',
+                            fontWeight: '600',
+                            background: isCompleted ? '#d1fae5' : '#fef3c7',
+                            color: isCompleted ? '#065f46' : '#92400e'
+                          }}
+                        >
                           {isCompleted ? '✓ Completed' : 'In Progress'}
                         </span>
                       </td>

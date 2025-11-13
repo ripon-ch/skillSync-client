@@ -130,7 +130,7 @@ function CourseCard({ course, showEnroll = false }) {
                 background: 'rgba(255,255,255,0.15)',
                 border: '1px solid rgba(255,255,255,0.35)',
                 fontSize: '0.75rem',
-                fontWeight: 700,
+                fontWeight: 600,
                 letterSpacing: '0.02em',
                 backdropFilter: 'blur(2px)'
               }}
@@ -140,7 +140,7 @@ function CourseCard({ course, showEnroll = false }) {
           </div>
           {/* Title (bottom-left) */}
           <div style={{ position: 'absolute', bottom: '1rem', left: '1rem', right: '1rem', color: '#ffffff' }}>
-            <h3 style={{ marginTop: 0, fontSize: '1.35rem', fontWeight: 800, lineHeight: 1.2 }}>
+            <h3 style={{ marginTop: 0, fontSize: '1.35rem', fontWeight: 600, lineHeight: 1.2 }}>
               {course.title}
             </h3>
           </div>
@@ -169,7 +169,7 @@ function CourseCard({ course, showEnroll = false }) {
                   border: 'none',
                   background: 'linear-gradient(135deg, #4c1d95, #6d28d9)',
                   color: '#ffffff',
-                  fontWeight: 700,
+                  fontWeight: 600,
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.6rem',
@@ -189,7 +189,7 @@ function CourseCard({ course, showEnroll = false }) {
                 </span>
               </button>
             )}
-            <span style={{ color: '#475569', fontWeight: 800 }}>
+            <span style={{ color: '#475569', fontWeight: 600 }}>
               {typeof course.price === 'number' ? `$${course.price.toFixed(2)}` : course.price ? `$${parseFloat(course.price).toFixed(2)}` : 'Free'}
             </span>
             <button
@@ -199,7 +199,7 @@ function CourseCard({ course, showEnroll = false }) {
                 border: 'none',
                 background: 'transparent',
                 color: '#4c1d95',
-                fontWeight: 700,
+                fontWeight: 600,
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.4rem',

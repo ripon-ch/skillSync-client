@@ -1,13 +1,16 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { uploadToImgbb } from '../lib/imgbb';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { COURSE_CATEGORIES } from '../../../shared/api';
 import { toast } from 'sonner';
 import { Loader, ArrowLeft } from 'lucide-react';
-import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function AddCourse() {
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -17,8 +20,6 @@ export default function AddCourse() {
     category: COURSE_CATEGORIES[0],
     isFeatured: false,
   });
-  const [loading, setLoading] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -31,7 +32,6 @@ export default function AddCourse() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (!formData.title || !formData.description || !formData.image || !formData.price || !formData.duration) {
       toast.error('Please fill in all required fields');
       return;
@@ -42,33 +42,37 @@ export default function AddCourse() {
       const response = await fetch('/api/courses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, price: parseFloat(formData.price) }),
+        body: JSON.stringify({
+          ...formData,
+          price: parseFloat(formData.price),
+          instructor: user.displayName || 'Unknown Instructor',
+          instructorEmail: user.email,
+          instructorImage: user.photoURL || 'https://via.placeholder.com/150',
+        }),
       });
 
-      if (!response.ok) throw new Error('Failed to add course');
+      if (!response.ok) throw new Error('Failed to create course');
 
-      toast.success('Course added successfully!');
+      toast.success('Course created successfully!');
       navigate('/my-courses');
     } catch (error) {
-      console.error(error);
-      toast.error(error.message || 'Failed to add course');
+      console.error('Error creating course:', error);
+      toast.error('Failed to create course');
     } finally {
       setLoading(false);
     }
   };
-
-  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="min-h-screen bg-background">
       {/* Back Button */}
       <div className="container mx-auto px-4 py-6">
         <button
-          onClick={() => navigate('/my-courses')}
+          onClick={() => navigate('/dashboard')}
           className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
         >
           <ArrowLeft size={20} />
-          Back to My Courses
+          Back to Dashboard
         </button>
       </div>
 
@@ -76,7 +80,7 @@ export default function AddCourse() {
       <div className="bg-gradient-to-r from-primary via-primary to-accent py-12">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl font-bold text-white mb-2">Add New Course</h1>
-          <p className="text-white/90">Create a new course for your students</p>
+          <p className="text-white/90">Share your knowledge with students around the world</p>
         </div>
       </div>
 
@@ -84,6 +88,21 @@ export default function AddCourse() {
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-2xl mx-auto bg-card border border-border rounded-lg p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Instructor Info (Read-only) */}
+            <div className="bg-muted/50 border border-border rounded-lg p-4">
+              <h3 className="font-semibold text-foreground mb-3">Instructor Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-muted-foreground">Name</p>
+                  <p className="font-medium text-foreground">{user.displayName || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Email</p>
+                  <p className="font-medium text-foreground">{user.email}</p>
+                </div>
+              </div>
+            </div>
+
             {/* Title */}
             <div>
               <label htmlFor="title" className="block text-sm font-medium text-foreground mb-2">
@@ -116,7 +135,7 @@ export default function AddCourse() {
               />
             </div>
 
-            {/* Image */}
+            {/* Image URL or Upload */}
             <div>
               <label htmlFor="image" className="block text-sm font-medium text-foreground mb-2">
                 Course Image *
@@ -162,8 +181,9 @@ export default function AddCourse() {
               )}
             </div>
 
-            {/* Price, Duration, Category */}
+            {/* Grid: Price, Duration, Category */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Price */}
               <div>
                 <label htmlFor="price" className="block text-sm font-medium text-foreground mb-2">
                   Price ($) *
@@ -180,6 +200,7 @@ export default function AddCourse() {
                 />
               </div>
 
+              {/* Duration */}
               <div>
                 <label htmlFor="duration" className="block text-sm font-medium text-foreground mb-2">
                   Duration *
@@ -195,6 +216,7 @@ export default function AddCourse() {
                 />
               </div>
 
+              {/* Category */}
               <div>
                 <label htmlFor="category" className="block text-sm font-medium text-foreground mb-2">
                   Category *
@@ -215,7 +237,7 @@ export default function AddCourse() {
               </div>
             </div>
 
-            {/* Featured */}
+            {/* Featured Checkbox */}
             <div className="flex items-center gap-3">
               <input
                 id="isFeatured"
@@ -238,11 +260,11 @@ export default function AddCourse() {
                 className="flex-1 py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {loading && <Loader size={20} className="animate-spin" />}
-                {loading ? 'Adding...' : 'Add Course'}
+                {loading ? 'Creating...' : 'Create Course'}
               </button>
               <button
                 type="button"
-                onClick={() => navigate('/my-courses')}
+                onClick={() => navigate('/dashboard')}
                 className="flex-1 py-3 border border-border rounded-lg font-semibold hover:bg-muted transition-colors"
               >
                 Cancel

@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
 import { uploadToImgbb } from '../lib/imgbb';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { COURSE_CATEGORIES } from '../../../shared/api.js';
-import LoadingSpinner from '../components/LoadingSpinner';
+import { COURSE_CATEGORIES } from '../../../shared/api';
+import { toast } from 'sonner';
 import { Loader, ArrowLeft } from 'lucide-react';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function UpdateCourse() {
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -26,32 +25,31 @@ export default function UpdateCourse() {
   });
 
   useEffect(() => {
-    const fetchCourse = async () => {
-      try {
-        const response = await fetch(`/api/courses/${id}`);
-        if (!response.ok) throw new Error('Failed to fetch course');
-        const data = await response.json();
-
-        setFormData({
-          title: data.title || '',
-          description: data.description || '',
-          image: data.image || '',
-          price: data.price || '',
-          duration: data.duration || '',
-          category: data.category || COURSE_CATEGORIES[0],
-          isFeatured: data.isFeatured || false,
-        });
-      } catch (error) {
-        console.error(error);
-        toast.error('Failed to load course');
-        navigate('/my-courses');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchCourse();
-  }, [id, navigate]);
+  }, [id]);
+
+  const fetchCourse = async () => {
+    try {
+      const response = await fetch(`/api/courses/${id}`);
+      if (!response.ok) throw new Error('Failed to fetch course');
+      const data = await response.json();
+      setFormData({
+        title: data.title,
+        description: data.description,
+        image: data.image,
+        price: data.price,
+        duration: data.duration,
+        category: data.category,
+        isFeatured: data.isFeatured || false,
+      });
+    } catch (error) {
+      console.error('Error fetching course:', error);
+      toast.error('Failed to load course');
+      navigate('/my-courses');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -61,25 +59,10 @@ export default function UpdateCourse() {
     }));
   };
 
-  const handleImageUpload = async (file) => {
-    if (!file) return;
-    setUploadingImage(true);
-    try {
-      const url = await uploadToImgbb(file);
-      setFormData((prev) => ({ ...prev, image: url }));
-      toast.success('Image uploaded successfully');
-    } catch (err) {
-      toast.error(err?.message || 'Failed to upload image');
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { title, description, image, price, duration } = formData;
-    if (!title || !description || !image || !price || !duration) {
+    if (!formData.title || !formData.description || !formData.image || !formData.price || !formData.duration) {
       toast.error('Please fill in all required fields');
       return;
     }
@@ -89,7 +72,10 @@ export default function UpdateCourse() {
       const response = await fetch(`/api/courses/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, price: parseFloat(price) }),
+        body: JSON.stringify({
+          ...formData,
+          price: parseFloat(formData.price),
+        }),
       });
 
       if (!response.ok) throw new Error('Failed to update course');
@@ -97,7 +83,7 @@ export default function UpdateCourse() {
       toast.success('Course updated successfully!');
       navigate('/my-courses');
     } catch (error) {
-      console.error(error);
+      console.error('Error updating course:', error);
       toast.error('Failed to update course');
     } finally {
       setSubmitting(false);
@@ -131,14 +117,15 @@ export default function UpdateCourse() {
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-2xl mx-auto bg-card border border-border rounded-lg p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
-
             {/* Title */}
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-foreground mb-2">Course Title *</label>
+              <label htmlFor="title" className="block text-sm font-medium text-foreground mb-2">
+                Course Title *
+              </label>
               <input
                 id="title"
-                name="title"
                 type="text"
+                name="title"
                 value={formData.title}
                 onChange={handleChange}
                 placeholder="Enter course title"
@@ -148,26 +135,30 @@ export default function UpdateCourse() {
 
             {/* Description */}
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-foreground mb-2">Description *</label>
+              <label htmlFor="description" className="block text-sm font-medium text-foreground mb-2">
+                Description *
+              </label>
               <textarea
                 id="description"
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                rows={4}
                 placeholder="Enter course description"
+                rows={4}
                 className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
-            {/* Image URL + Upload */}
+            {/* Image URL or Upload */}
             <div>
-              <label htmlFor="image" className="block text-sm font-medium text-foreground mb-2">Course Image *</label>
+              <label htmlFor="image" className="block text-sm font-medium text-foreground mb-2">
+                Course Image *
+              </label>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <input
                   id="image"
-                  name="image"
                   type="url"
+                  name="image"
                   value={formData.image}
                   onChange={handleChange}
                   placeholder="https://example.com/image.jpg"
@@ -178,7 +169,21 @@ export default function UpdateCourse() {
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={(e) => handleImageUpload(e.target.files?.[0])}
+                    onChange={async (e) => {
+                      const file = e.target.files && e.target.files[0];
+                      if (!file) return;
+                      setUploadingImage(true);
+                      try {
+                        const url = await uploadToImgbb(file);
+                        setFormData((prev) => ({ ...prev, image: url }));
+                        toast.success('Image uploaded');
+                      } catch (err) {
+                        toast.error(err?.message || 'Failed to upload image');
+                      } finally {
+                        setUploadingImage(false);
+                        e.target.value = '';
+                      }
+                    }}
                   />
                   {uploadingImage ? 'Uploading…' : 'Upload Image'}
                 </label>
@@ -190,15 +195,18 @@ export default function UpdateCourse() {
               )}
             </div>
 
-            {/* Price, Duration, Category */}
+            {/* Grid: Price, Duration, Category */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Price */}
               <div>
-                <label htmlFor="price" className="block text-sm font-medium text-foreground mb-2">Price ($) *</label>
+                <label htmlFor="price" className="block text-sm font-medium text-foreground mb-2">
+                  Price ($) *
+                </label>
                 <input
                   id="price"
-                  name="price"
                   type="number"
                   step="0.01"
+                  name="price"
                   value={formData.price}
                   onChange={handleChange}
                   placeholder="99.99"
@@ -206,12 +214,15 @@ export default function UpdateCourse() {
                 />
               </div>
 
+              {/* Duration */}
               <div>
-                <label htmlFor="duration" className="block text-sm font-medium text-foreground mb-2">Duration *</label>
+                <label htmlFor="duration" className="block text-sm font-medium text-foreground mb-2">
+                  Duration *
+                </label>
                 <input
                   id="duration"
-                  name="duration"
                   type="text"
+                  name="duration"
                   value={formData.duration}
                   onChange={handleChange}
                   placeholder="e.g., 40 hours"
@@ -219,8 +230,11 @@ export default function UpdateCourse() {
                 />
               </div>
 
+              {/* Category */}
               <div>
-                <label htmlFor="category" className="block text-sm font-medium text-foreground mb-2">Category *</label>
+                <label htmlFor="category" className="block text-sm font-medium text-foreground mb-2">
+                  Category *
+                </label>
                 <select
                   id="category"
                   name="category"
@@ -229,18 +243,20 @@ export default function UpdateCourse() {
                   className="w-full px-4 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   {COURSE_CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
                   ))}
                 </select>
               </div>
             </div>
 
-            {/* Featured */}
+            {/* Featured Checkbox */}
             <div className="flex items-center gap-3">
               <input
                 id="isFeatured"
-                name="isFeatured"
                 type="checkbox"
+                name="isFeatured"
                 checked={formData.isFeatured}
                 onChange={handleChange}
                 className="w-4 h-4 rounded border-border cursor-pointer"
@@ -250,7 +266,7 @@ export default function UpdateCourse() {
               </label>
             </div>
 
-            {/* Buttons */}
+            {/* Submit Button */}
             <div className="flex gap-4 pt-4">
               <button
                 type="submit"
@@ -268,7 +284,6 @@ export default function UpdateCourse() {
                 Cancel
               </button>
             </div>
-
           </form>
         </div>
       </div>

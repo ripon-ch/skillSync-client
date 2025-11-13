@@ -43,12 +43,12 @@ export default function CertificateCard({ certificate, onDownload }) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          flexShrink: 0
+          flexShrink
         }}>
           <FileText size={32} color="#ffffff" />
         </div>
 
-        <div style={{ flex: 1 }}>
+        <div style={{ flex }}>
           <h3 style={{
             fontSize: '1.125rem',
             fontWeight: '700',
@@ -67,7 +67,7 @@ export default function CertificateCard({ certificate, onDownload }) {
           <p style={{
             fontSize: '0.875rem',
             color: '#6b7280',
-            margin: 0
+            margin
           }}>
             Completed: {completedDate.toLocaleDateString()}
           </p>

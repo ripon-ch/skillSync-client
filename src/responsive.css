@@ -1,0 +1,233 @@
+/* Comprehensive Responsive CSS */
+
+/* Base - Desktop First (1200px+) */
+* {
+  box-sizing: border-box;
+}
+
+.hero-responsive {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+}
+
+.course-media {
+  height: 200px;
+  width: 100%;
+  object-fit: cover;
+}
+
+.course-card {
+  width: 100%;
+  height: auto;
+}
+
+/* Tablet & smaller (max 1023px / < 1024px) */
+@media (max-width: 1023px) {
+  .hero-responsive,
+  [class*="hero-responsive"] {
+    flex-direction: column !important;
+    padding: 2rem 1.25rem !important;
+    gap: 1.5rem !important;
+    min-height: auto !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+
+  .hero-responsive > div {
+    width: 100% !important;
+    flex: 1 !important;
+  }
+
+  /* Reorder: Image first, text second on tablet */
+  .hero-responsive > div:first-child {
+    order: 2 !important;
+  }
+
+  .hero-responsive > div:last-child {
+    order: 1 !important;
+  }
+
+  .hero-responsive h1 {
+    font-size: 2rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .course-media {
+    height: 140px;
+  }
+
+  /* Grid adjustments */
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .grid-cols-3 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .featured-course-card {
+    flex-direction: column !important;
+  }
+
+  /* Partner logos responsiveness */
+  .partner-logos {
+    gap: 1.5rem !important;
+  }
+
+  /* Features section responsiveness */
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* Small tablets and large phones (480px - 767px) */
+@media (max-width: 640px) {
+  .hero-responsive {
+    flex-direction: column;
+    padding: 1.5rem 1rem !important;
+    gap: 1rem !important;
+    min-height: auto;
+  }
+
+  .hero-responsive h1 {
+    font-size: 1.5rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .hero-responsive button {
+    width: 100% !important;
+    font-size: 0.875rem !important;
+  }
+
+  .course-media {
+    height: 120px;
+  }
+
+  .course-card {
+    height: auto !important;
+    min-height: auto !important;
+  }
+
+  /* Grid adjustments */
+  .grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .grid-cols-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Featured course card */
+  .featured-course-card {
+    flex-direction: column !important;
+    padding: 1.5rem !important;
+    height: auto !important;
+  }
+
+  /* Features section responsiveness */
+  .features-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Stats section */
+  .stats-container {
+    flex-direction: column !important;
+    gap: 1.5rem !important;
+  }
+
+  /* Navigation bar */
+  nav {
+    flex-wrap: wrap !important;
+  }
+
+  .course-title {
+    font-size: 1.25rem !important;
+  }
+}
+
+/* Extra small phones (< 480px) */
+@media (max-width: 479px) {
+  .hero-responsive {
+    flex-direction: column;
+    padding: 1rem 0.75rem !important;
+    gap: 0.75rem !important;
+  }
+
+  .hero-responsive h1 {
+    font-size: 1.25rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .hero-responsive > div:first-child > div:first-of-type {
+    gap: 0.75rem !important;
+  }
+
+  .course-media {
+    height: 100px;
+  }
+
+  /* Course card adjustments */
+  .course-card {
+    margin-bottom: 1rem;
+  }
+
+  /* Text sizing */
+  h1, .h1 {
+    font-size: 1.25rem !important;
+  }
+
+  h2, .h2 {
+    font-size: 1.125rem !important;
+  }
+
+  h3, .h3 {
+    font-size: 1rem !important;
+  }
+
+  p {
+    font-size: 0.875rem !important;
+  }
+
+  /* Button sizing */
+  button {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.8rem !important;
+  }
+
+  .featured-course-card {
+    margin-left: 0 !important;
+  }
+
+  /* Info cards - hide on mobile */
+  .info-card-top,
+  .info-card-bottom {
+    display: none !important;
+  }
+}
+
+/* Tablets and up - show info cards */
+@media (min-width: 769px) {
+  .info-card-top,
+  .info-card-bottom {
+    display: block !important;
+  }
+}
+
+/* Hide info cards on tablets and below */
+@media (max-width: 768px) {
+  .info-card-top,
+  .info-card-bottom {
+    display: none !important;
+  }
+}

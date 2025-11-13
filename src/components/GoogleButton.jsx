@@ -18,7 +18,7 @@ export default function GoogleButton({ onClick, disabled, text = 'Sign in with G
         borderRadius: '6px',
         fontWeight: 600,
         cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.7 : 1
+        opacity: disabled ? 0.7  : 1
       }}
       onMouseOver={(e) => (e.currentTarget.style.background = '#f7f8f8')}
       onMouseOut={(e) => (e.currentTarget.style.background = '#ffffff')}

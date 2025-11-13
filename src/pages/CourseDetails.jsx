@@ -1,175 +1,253 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Clock, DollarSign, BookOpen, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'sonner';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { Clock, BookOpen, User, DollarSign, CheckCircle } from 'lucide-react';
+import ReviewForm from '../components/ReviewForm';
+import ReviewDisplay from '../components/ReviewDisplay';
 
 export default function CourseDetails() {
   const { id } = useParams();
-  const { user } = useAuth();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [isEnrolling, setIsEnrolling] = useState(false);
+  const [reviewsRefresh, setReviewsRefresh] = useState(0);
+  const queryClient = useQueryClient();
 
-  const [course, setCourse] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [isEnrolled, setIsEnrolled] = useState(false);
-  const [enrolling, setEnrolling] = useState(false);
-
-  useEffect(() => {
-    fetchCourse();
-  }, [id]);
-
-  useEffect(() => {
-    if (user?.email && course?._id) checkEnrollment(user.email, course._id);
-  }, [user, course]);
-
-  // Fetch course details
-  const fetchCourse = async () => {
-    try {
+  const { data: course, isLoading } = useQuery({
+    queryKey: ['course', id],
+    queryFn: async () => {
       const response = await fetch(`/api/courses/${id}`);
-      if (!response.ok) throw new Error('Failed to load course details');
-      const data = await response.json();
-      setCourse(data);
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to load course');
-    } finally {
-      setLoading(false);
-    }
-  };
+      if (!response.ok) throw new Error('Course not found');
+      return response.json();
+    },
+    retry: 1,
+  });
 
-  // Check if user is enrolled
-  const checkEnrollment = async (email, courseId) => {
-    try {
-      const response = await fetch(`/api/enrollments/user/my-enrollments?email=${encodeURIComponent(email)}`);
-      if (!response.ok) return;
-      const enrolledCourses = await response.json();
-      setIsEnrolled(enrolledCourses.some((c) => String(c._id || c.id) === String(courseId)));
-    } catch {
-      // fallback to local storage
-      const key = `enrollments:${email}`;
-      const stored = JSON.parse(localStorage.getItem(key) || '[]');
-      setIsEnrolled(stored.includes(String(courseId)));
-    }
-  };
+  const { data: enrollment, refetch: refetchEnrollment } = useQuery({
+    queryKey: ['enrollment', id, user?.email],
+    queryFn: async () => {
+      if (!user?.email) return { enrolled: false };
+      const response = await fetch(`/api/enrollments/check/${id}?email=${encodeURIComponent(user.email)}`);
+      if (!response.ok) return { enrolled: false };
+      return response.json();
+    },
+    enabled: !!user?.email,
+  });
 
-  // Handle enrollment
+  const isEnrolled = !!enrollment?.enrolled;
+
   const handleEnroll = async () => {
     if (!user) {
-      toast.warning('Please log in to enroll in this course');
+      toast.error('Please login to enroll in a course');
       navigate('/login');
       return;
     }
 
-    setEnrolling(true);
+    setIsEnrolling(true);
     try {
       const response = await fetch('/api/enrollments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: user.email,
-          courseId: course._id,
+          courseId: id,
+          userEmail: user.email,
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to enroll');
-
-      // store locally for fallback
-      const key = `enrollments:${user.email}`;
-      const stored = JSON.parse(localStorage.getItem(key) || '[]');
-      if (!stored.includes(course._id)) {
-        stored.push(course._id);
-        localStorage.setItem(key, JSON.stringify(stored));
+      if (!response.ok) {
+        let data = null;
+        try { data = await response.json(); } catch {}
+        if (data && (data.error === 'Already enrolled in this course' || data.error === 'Already enrolled')) {
+          toast.success('Already enrolled');
+          await refetchEnrollment();
+          queryClient.invalidateQueries({ queryKey: ['enrollment', id, user.email] });
+          navigate('/my-enrolled-courses');
+          return;
+        }
+        try {
+          const key = `enrollments:${user.email}`;
+          const list = JSON.parse(localStorage.getItem(key) || '[]');
+          if (!list.includes(String(id))) {
+            list.push(String(id));
+            localStorage.setItem(key, JSON.stringify(list));
+          }
+        } catch {}
+        toast.success('Successfully enrolled in the course!');
+        await refetchEnrollment();
+        queryClient.invalidateQueries({ queryKey: ['enrollment', id, user.email] });
+        navigate('/my-enrolled-courses');
+        return;
       }
 
-      setIsEnrolled(true);
-      toast.success('Successfully enrolled!');
+      try {
+        const key = `enrollments:${user.email}`;
+        const list = JSON.parse(localStorage.getItem(key) || '[]');
+        if (!list.includes(String(id))) {
+          list.push(String(id));
+          localStorage.setItem(key, JSON.stringify(list));
+        }
+      } catch {}
+      toast.success('Successfully enrolled in the course!');
+      await refetchEnrollment();
+      queryClient.invalidateQueries({ queryKey: ['enrollment', id, user.email] });
+      navigate('/my-enrolled-courses');
     } catch (error) {
-      console.error(error);
+      console.error('Error enrolling:', error);
       toast.error('Failed to enroll in course');
     } finally {
-      setEnrolling(false);
+      setIsEnrolling(false);
     }
   };
 
-  if (loading) return <LoadingSpinner />;
+  if (isLoading) return <LoadingSpinner />;
 
-  if (!course)
+  if (!course) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
-        Course not found.
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-muted-foreground mb-4">Course not found</p>
+          <button
+            onClick={() => navigate('/courses')}
+            className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
+          >
+            Back to Courses
+          </button>
+        </div>
       </div>
     );
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-primary via-primary to-accent py-12">
-        <div className="container mx-auto px-4">
-          <h1 className="text-4xl font-bold text-white mb-2">{course.title}</h1>
-          <p className="text-white/90 max-w-2xl">{course.description}</p>
+      {/* Back Button */}
+      <div className="container mx-auto px-4 py-6">
+        <button
+          onClick={() => navigate('/courses')}
+          className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+        >
+          <ArrowLeft size={20} />
+          Back to Courses
+        </button>
+      </div>
+
+      {/* Course Header */}
+      <div className="bg-gradient-to-r from-primary via-primary to-accent">
+        <div className="container mx-auto px-4 py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Content */}
+            <div className="lg:col-span-2">
+              <div className="inline-block px-3 py-1 bg-white/20 text-white rounded-full text-sm font-semibold mb-4">
+                {course.category}
+              </div>
+              <h1 className="text-4xl font-bold text-white mb-4">{course.title}</h1>
+              <p className="text-white/90 text-lg mb-6">{course.description}</p>
+              
+              <div className="flex flex-wrap gap-6 text-white">
+                <div className="flex items-center gap-2">
+                  <Clock size={20} />
+                  <span>{course.duration}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <BookOpen size={20} />
+                  <span>{course.instructor}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Card */}
+            <div className="bg-white rounded-lg shadow-lg p-6 h-fit">
+              <div className="mb-6">
+                <p className="text-muted-foreground text-sm mb-1">Price</p>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-4xl font-bold text-foreground">${course.price}</span>
+                </div>
+              </div>
+
+              <button
+                onClick={handleEnroll}
+                disabled={isEnrolling || isEnrolled}
+                className="w-full py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isEnrolled ? 'Already Enrolled' : isEnrolling ? 'Enrolling...' : 'Enroll Now'}
+              </button>
+
+              <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-700">
+                  ✓ Lifetime access to course materials
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="container mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left content */}
-        <div className="lg:col-span-2 space-y-8">
-          <div className="rounded-lg overflow-hidden">
+      {/* Course Content */}
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-4xl">
+          {/* Course Image */}
+          <div className="w-full h-64 md:h-80 lg:h-96 rounded-lg overflow-hidden mb-8 border border-border">
             <img
               src={course.image}
               alt={course.title}
-              className="w-full h-[400px] object-cover rounded-lg"
+              className="w-full h-full object-cover"
             />
           </div>
 
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold text-foreground">About this course</h2>
+          {/* About Section */}
+          <div className="bg-card border border-border rounded-lg p-8 mb-8">
+            <h2 className="text-2xl font-bold text-foreground mb-4">About This Course</h2>
+            <p className="text-muted-foreground leading-relaxed mb-4">
+              {course.description}
+            </p>
             <p className="text-muted-foreground leading-relaxed">
-              {course.longDescription ||
-                'This course provides in-depth learning materials, projects, and mentorship to help you master the topic effectively.'}
+              This comprehensive course is designed to take you from beginner to advanced level. You'll learn industry best practices, real-world applications, and gain hands-on experience with practical projects.
             </p>
           </div>
-        </div>
 
-        {/* Right sidebar */}
-        <div className="bg-card border border-border rounded-lg p-6 space-y-6 h-fit shadow-sm">
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 text-muted-foreground">
-              <Clock size={18} />
-              <span>{course.duration}</span>
-            </div>
-            <div className="flex items-center gap-3 text-muted-foreground">
-              <User size={18} />
-              <span>{course.instructor}</span>
-            </div>
-            <div className="flex items-center gap-3 text-muted-foreground">
-              <BookOpen size={18} />
-              <span>{course.category}</span>
-            </div>
-            <div className="flex items-center gap-3 text-foreground font-semibold">
-              <DollarSign size={18} />
-              <span>${course.price}</span>
+          {/* What You'll Learn */}
+          <div className="bg-card border border-border rounded-lg p-8 mb-8">
+            <h2 className="text-2xl font-bold text-foreground mb-6">What You'll Learn</h2>
+            <ul className="space-y-3">
+              {[
+                'Master the fundamentals and core concepts',
+                'Build real-world projects from scratch',
+                'Learn industry best practices and patterns',
+                'Get access to exclusive resources and tools',
+                'Join a community of learners',
+                'Get lifetime access to all course materials',
+              ].map((item, idx) => (
+                <li key={idx} className="flex items-start gap-3 text-foreground">
+                  <span className="text-primary font-bold mt-1">✓</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Instructor Info */}
+          <div className="bg-card border border-border rounded-lg p-8 mb-8">
+            <h2 className="text-2xl font-bold text-foreground mb-4">Instructor</h2>
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary">
+                <img
+                  src={`https://via.placeholder.com/150?text=${encodeURIComponent(course.instructor)}`}
+                  alt={course.instructor}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-foreground">{course.instructor}</h3>
+                <p className="text-muted-foreground">Expert Instructor</p>
+              </div>
             </div>
           </div>
 
-          {isEnrolled ? (
-            <button
-              onClick={() => navigate('/my-enrolled-courses')}
-              className="w-full flex items-center justify-center gap-2 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold"
-            >
-              <CheckCircle size={18} />
-              Enrolled – Go to My Courses
-            </button>
-          ) : (
-            <button
-              onClick={handleEnroll}
-              disabled={enrolling}
-              className="w-full py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {enrolling ? 'Enrolling…' : 'Enroll Now'}
-            </button>
-          )}
+          {/* Reviews Section */}
+          <ReviewForm courseId={id} onReviewSubmitted={() => setReviewsRefresh((n) => n + 1)} />
+          <ReviewDisplay key={reviewsRefresh} courseId={id} />
         </div>
       </div>
     </div>

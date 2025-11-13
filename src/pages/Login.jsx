@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '../lib/firebase';
-import { Mail, Lock, Loader } from 'lucide-react';
+import { Mail, Lock, Loader, ArrowRight } from 'lucide-react';
 import GoogleButton from '../components/GoogleButton';
 import { toast } from 'sonner';
 
@@ -14,7 +14,10 @@ export default function Login() {
 
   const handleEmailLogin = async (e) => {
     e.preventDefault();
-    if (!email || !password) return toast.error('Please fill in all fields');
+    if (!email || !password) {
+      toast.error('Please fill in all fields');
+      return;
+    }
 
     setLoading(true);
     try {
@@ -31,7 +34,8 @@ export default function Login() {
   const handleGoogleLogin = async () => {
     setLoading(true);
     try {
-      await signInWithPopup(auth, new GoogleAuthProvider());
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
       toast.success('Google login successful!');
       navigate('/', { replace: true });
     } catch (error) {
@@ -44,16 +48,21 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 dark:from-purple-900 dark:via-purple-950 dark:to-black flex items-center justify-center py-12 px-4">
       <div className="w-full max-w-md">
+        {/* Card */}
         <div className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700">
+          {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Hi, Welcome back!</h2>
             <p className="text-slate-600 dark:text-slate-400">Sign in to your Learnora account</p>
           </div>
 
+          {/* Form */}
           <form onSubmit={handleEmailLogin} className="space-y-5">
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email Address</label>
+              <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                Email Address
+              </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                 <input
@@ -61,15 +70,17 @@ export default function Login() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
                   className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="you@example.com"
                 />
               </div>
             </div>
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Password</label>
+              <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                Password
+              </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                 <input
@@ -77,15 +88,17 @@ export default function Login() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
                   className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  placeholder="••••••••"
                 />
               </div>
             </div>
 
             {/* Forgot Password */}
             <div className="flex justify-end">
-              <Link to="#" className="text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 font-medium">Forgot password?</Link>
+              <a href="#" className="text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 font-medium">
+                Forgot password?
+              </a>
             </div>
 
             {/* Submit Button */}
@@ -99,6 +112,7 @@ export default function Login() {
             </button>
           </form>
 
+          {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-slate-300 dark:border-slate-600" />
@@ -108,8 +122,10 @@ export default function Login() {
             </div>
           </div>
 
+          {/* Google Button */}
           <GoogleButton onClick={handleGoogleLogin} disabled={loading} text="Sign in with Google" ariaLabel="Sign in with Google" />
 
+          {/* Sign Up Link */}
           <p className="text-center text-slate-600 dark:text-slate-400 mt-6">
             Don't have an account?{' '}
             <Link to="/register" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition-colors">

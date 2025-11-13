@@ -9,7 +9,7 @@ export default function ReviewDisplay({ courseId, onReviewsLoad }) {
   const [stats, setStats] = useState({
     averageRating: 0,
     totalReviews: 0,
-    distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+    distribution: [5, 4, 3, 2, 1]
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -50,7 +50,7 @@ export default function ReviewDisplay({ courseId, onReviewsLoad }) {
         setStats({
           averageRating: 0,
           totalReviews: 0,
-          distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+          distribution: [5, 4, 3, 2, 1]
         });
         toast.error(data?.error || 'Failed to load reviews');
         return;
@@ -60,7 +60,7 @@ export default function ReviewDisplay({ courseId, onReviewsLoad }) {
       setStats({
         averageRating: data.averageRating || 0,
         totalReviews: data.totalReviews || 0,
-        distribution: data.distribution || { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+        distribution: data.distribution || [5, 4, 3, 2, 1]
       });
       if (onReviewsLoad) onReviewsLoad(data);
     } catch (error) {
@@ -69,7 +69,7 @@ export default function ReviewDisplay({ courseId, onReviewsLoad }) {
       setStats({
         averageRating: 0,
         totalReviews: 0,
-        distribution: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
+        distribution: [5, 4, 3, 2, 1]
       });
       toast.error('Failed to load reviews');
     } finally {
@@ -119,7 +119,7 @@ export default function ReviewDisplay({ courseId, onReviewsLoad }) {
   );
 
   const RatingBar = ({ rating, count, total }) => {
-    const percentage = total > 0 ? (count / total) * 100 : 0;
+    const percentage = total > 0 ? (count / total) * 100 : (count / total) * 100;
     return (
       <div style={{
         display: 'flex',

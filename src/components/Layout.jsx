@@ -4,27 +4,22 @@ import Footer from './Footer';
 import LoadingSpinner from './LoadingSpinner';
 import { useAuth } from '../context/AuthContext';
 
-function LoadingOverlay({ label }) {
-  return (
-    <div className="fixed inset-0 bg-slate-900/35 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="p-5 bg-white/90 rounded-xl shadow-lg">
-        <LoadingSpinner fullPage={false} label={label} />
-      </div>
-    </div>
-  );
-}
-
 export default function Layout() {
   const { loading } = useAuth();
-
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground">
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#ffffff', color: '#1f2937' }}>
       <Header />
-      <main className="flex-grow">
+      <main style={{ flex: 1 }}>
         <Outlet />
       </main>
       <Footer />
-      {loading && <LoadingOverlay label="Please wait…" />}
+      {loading && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.35)', backdropFilter: 'blur(2px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
+          <div style={{ padding: '18px 22px', background: 'rgba(255,255,255,0.9)', borderRadius: '0.5rem', boxShadow: '0 10px 30px rgba(0,0,0,0.15)' }}>
+            <LoadingSpinner fullPage={false} label="Please wait…" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

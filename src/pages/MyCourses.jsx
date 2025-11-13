@@ -1,120 +1,166 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Loader, Trash2 } from 'lucide-react';
+import { Edit2, Trash2, Eye, Plus } from 'lucide-react';
 import { toast } from 'sonner';
-import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function MyCourses() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [deletingId, setDeletingId] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   useEffect(() => {
-    if (user?.email) fetchMyCourses(user.email);
-  }, [user?.email]);
+    fetchMyCourses();
+  }, [user]);
 
-  const fetchMyCourses = async (email) => {
+  const fetchMyCourses = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/courses/user?email=${encodeURIComponent(email)}`);
-      if (!res.ok) throw new Error('Failed to fetch courses');
-      const data = await res.json();
+      const response = await fetch(`/api/courses/user/my-courses?email=${user.email}`);
+      if (!response.ok) throw new Error('Failed to fetch courses');
+      const data = await response.json();
       setCourses(data);
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching courses:', error);
       toast.error('Failed to load your courses');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Are you sure you want to delete this course?')) return;
-    setDeletingId(id);
+  const handleDelete = async (courseId) => {
     try {
-      const res = await fetch(`/api/courses/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Failed to delete course');
-      toast.success('Course deleted successfully!');
-      setCourses((prev) => prev.filter((course) => course._id !== id));
+      const response = await fetch(`/api/courses/${courseId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to delete course');
+
+      toast.success('Course deleted successfully');
+      setCourses(courses.filter(c => c._id !== courseId));
+      setDeleteConfirm(null);
     } catch (error) {
-      console.error(error);
+      console.error('Error deleting course:', error);
       toast.error('Failed to delete course');
-    } finally {
-      setDeletingId(null);
     }
   };
-
-  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="bg-gradient-to-r from-primary via-primary to-accent py-12">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
-          <h1 className="text-4xl font-bold text-white">My Courses</h1>
+        <div className="container mx-auto px-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-white mb-2">My Courses</h1>
+            <p className="text-white/90">Manage the courses you have created</p>
+          </div>
           <Link
             to="/add-course"
-            className="px-6 py-3 bg-white text-primary font-semibold rounded-lg hover:bg-white/90 transition-colors"
+            className="flex items-center gap-2 px-6 py-3 bg-white text-primary rounded-lg font-semibold hover:bg-gray-100 transition-colors"
           >
-            + Add New Course
+            <Plus size={20} />
+            Add Course
           </Link>
         </div>
       </div>
 
-      {/* Courses Grid */}
+      {/* Content */}
       <div className="container mx-auto px-4 py-12">
-        {courses.length === 0 ? (
+        {loading ? (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-lg mb-4">You haven't added any courses yet.</p>
-            <Link
-              to="/add-course"
-              className="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-            >
-              Add Your First Course
-            </Link>
+            <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto" />
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        ) : courses.length > 0 ? (
+          <div className="grid grid-cols-1 gap-6">
             {courses.map((course) => (
-              <div key={course._id} className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-lg flex flex-col h-full">
-                {/* Image */}
-                <div className="w-full h-40 overflow-hidden bg-muted">
-                  <img
-                    src={course.image}
-                    alt={course.title}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform"
-                  />
+              <div key={course._id} className="bg-card border border-border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-6">
+                  {/* Image */}
+                  <div className="md:col-span-1">
+                    <img
+                      src={course.image}
+                      alt={course.title}
+                      className="w-full h-40 object-cover rounded-lg"
+                    />
+                  </div>
+
+                  {/* Details */}
+                  <div className="md:col-span-2">
+                    <h3 className="text-lg font-bold text-foreground mb-2">{course.title}</h3>
+                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                      {course.description}
+                    </p>
+                    <div className="flex flex-wrap gap-3 text-sm">
+                      <span className="px-2 py-1 bg-primary/10 text-primary rounded">
+                        {course.category}
+                      </span>
+                      <span className="text-muted-foreground">${course.price}</span>
+                      <span className="text-muted-foreground">{course.duration}</span>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="md:col-span-1 flex flex-col gap-2 justify-center">
+                    <Link
+                      to={`/course/${course._id}`}
+                      className="flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm"
+                    >
+                      <Eye size={16} />
+                      View
+                    </Link>
+                    <Link
+                      to={`/update-course/${course._id}`}
+                      className="flex items-center justify-center gap-2 px-4 py-2 border border-border rounded-lg hover:bg-muted transition-colors text-sm"
+                    >
+                      <Edit2 size={16} />
+                      Edit
+                    </Link>
+                    <button
+                      onClick={() => setDeleteConfirm(course._id)}
+                      className="flex items-center justify-center gap-2 px-4 py-2 border border-destructive/50 text-destructive rounded-lg hover:bg-destructive/10 transition-colors text-sm"
+                    >
+                      <Trash2 size={16} />
+                      Delete
+                    </button>
+                  </div>
                 </div>
 
-                {/* Content */}
-                <div className="p-5 flex flex-col flex-grow">
-                  <h3 className="text-lg font-bold text-foreground mb-2 line-clamp-2">{course.title}</h3>
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-grow">{course.description}</p>
-
-                  <div className="flex items-center justify-between pt-4 border-t border-border">
-                    <span className="font-bold text-lg text-foreground">${course.price}</span>
+                {/* Delete Confirmation */}
+                {deleteConfirm === course._id && (
+                  <div className="bg-destructive/10 border-t border-destructive/30 p-4 flex items-center justify-between">
+                    <p className="text-sm text-destructive">
+                      Are you sure you want to delete this course? This action cannot be undone.
+                    </p>
                     <div className="flex gap-2">
-                      <Link
-                        to={`/update-course/${course._id}`}
-                        className="px-3 py-1 bg-primary text-primary-foreground rounded text-sm font-semibold hover:bg-primary/90 transition-colors"
+                      <button
+                        onClick={() => setDeleteConfirm(null)}
+                        className="px-4 py-2 text-sm border border-border rounded-lg hover:bg-muted transition-colors"
                       >
-                        Edit
-                      </Link>
+                        Cancel
+                      </button>
                       <button
                         onClick={() => handleDelete(course._id)}
-                        disabled={deletingId === course._id}
-                        className="px-3 py-1 bg-red-600 text-white rounded text-sm font-semibold hover:bg-red-700 transition-colors flex items-center gap-1"
+                        className="px-4 py-2 text-sm bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors"
                       >
-                        {deletingId === course._id ? <Loader size={16} className="animate-spin" /> : <Trash2 size={16} />}
                         Delete
                       </button>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground text-lg mb-4">You haven't created any courses yet</p>
+            <Link
+              to="/add-course"
+              className="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              Create Your First Course
+            </Link>
           </div>
         )}
       </div>
