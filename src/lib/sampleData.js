@@ -4,7 +4,7 @@
  * Replace with real API calls in production
  */
 
-import { COURSE_CATEGORIES } from '../../shared/api';
+import { COURSE_CATEGORIES } from '../../../shared/api.js';
 
 // Re-export for backward compatibility
 export { COURSE_CATEGORIES };

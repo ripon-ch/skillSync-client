@@ -2,7 +2,8 @@ import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import CourseCard from '../components/CourseCard';
-import { COURSE_CATEGORIES } from '../../shared/api';
+import { COURSE_CATEGORIES } from "../../../shared/api.js";
+
 import { toast } from 'sonner';
 
 export default function AllCourses() {
