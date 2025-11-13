@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { uploadToImgbb } from '../lib/imgbb';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { COURSE_CATEGORIES } from "../../../shared/api.js";
+import { COURSE_CATEGORIES } from "@/shared/api.js";
 
 import { toast } from 'sonner';
 import { Loader, ArrowLeft } from 'lucide-react';
