@@ -396,7 +396,7 @@ function CourseCard({ course }) {
               background: 'rgba(255,255,255,0.15)',
               border: '1px solid rgba(255,255,255,0.35)',
               fontSize: '0.75rem',
-              fontWeight: 700,
+              fontWeight: 600,
               letterSpacing: '0.02em',
               backdropFilter: 'blur(2px)',
             }}
@@ -417,7 +417,7 @@ function CourseCard({ course }) {
             style={{
               marginTop: 0,
               fontSize: '1.35rem',
-              fontWeight: 800,
+              fontWeight: 600,
               lineHeight: 1.2,
             }}
           >
@@ -446,7 +446,7 @@ function CourseCard({ course }) {
                 ? 'linear-gradient(135deg, #4c1d95, #6d28d9)'
                 : '#e2e8f0',
               color: course.statusVariant === 'active' ? '#ffffff' : '#475569',
-              fontWeight: 700,
+              fontWeight: 600,
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.6rem',
@@ -484,7 +484,7 @@ function CourseCard({ course }) {
               border: 'none',
               background: 'transparent',
               color: '#4c1d95',
-              fontWeight: 700,
+              fontWeight: 600,
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.4rem',
@@ -509,8 +509,18 @@ function CourseCard({ course }) {
 
 function CourseSection({ section }) {
   return (
-    <div style={{ marginBottom: '3.5rem' }}>
-      <div
+    <motion.div
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      transition={{ duration: 0.6 }}
+      viewport={{ once: true, margin: '-100px' }}
+      style={{ marginBottom: '3.5rem' }}
+    >
+      <motion.div
+        initial={{ opacity: 0, x: -30 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6 }}
+        viewport={{ once: true, margin: '-100px' }}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -522,13 +532,13 @@ function CourseSection({ section }) {
         <h2
           style={{
             fontSize: 'clamp(1.25rem, 5vw, 1.8rem)',
-            fontWeight: 800,
+            fontWeight: 600,
             color: '#1f2937',
           }}
         >
           {section.title}
         </h2>
-      </div>
+      </motion.div>
       <div
         style={{
           display: 'grid',
@@ -537,11 +547,19 @@ function CourseSection({ section }) {
           justifyContent: 'flex-start'
         }}
       >
-        {section.courses.map((course) => (
-          <CourseCard key={course.id} course={course} />
+        {section.courses.map((course, index) => (
+          <motion.div
+            key={course.id}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
+            viewport={{ once: true, margin: '-100px' }}
+          >
+            <CourseCard course={course} />
+          </motion.div>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -549,7 +567,7 @@ export default function LoggedInHome() {
   const [isTabletOrSmaller, setIsTabletOrSmaller] = useState(false);
 
   useEffect(() => {
-    const mql = window.matchMedia('(max-width: 1023px)');
+    const mql = window.matchMedia('(max-width: 768px)');
     const handleChange = (e) => {
       setIsTabletOrSmaller(e.matches);
     };
@@ -562,7 +580,7 @@ export default function LoggedInHome() {
 
   return (
     <div style={{ background: '#f1f5f9', minHeight: '100vh' }}>
-      {/* Hero (same as normal home) */}
+      {/* Hero (same home) */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -590,7 +608,7 @@ export default function LoggedInHome() {
           maxWidth: 'clamp(280px, 90vw, 550px)',
           zIndex: 10,
           order: isTabletOrSmaller ? 2 : 1
-        }}>
+      }}>
           <h1 style={{
             fontSize: 'clamp(1.5rem, 8vw, 3.5rem)',
             fontWeight: '900',
@@ -654,8 +672,8 @@ export default function LoggedInHome() {
             <button style={{
               background: '#fbbf24',
               color: '#1f2937',
-              width: 'clamp(48px, 10vw, 60px)',
-              height: 'clamp(48px, 10vw, 60px)',
+              width: isTabletOrSmaller ? '48px' : 'clamp(48px, 10vw, 60px)',
+              height: isTabletOrSmaller ? '48px' : 'clamp(48px, 10vw, 60px)',
               borderRadius: '50%',
               border: 'none',
               cursor: 'pointer',
@@ -674,13 +692,14 @@ export default function LoggedInHome() {
               e.target.style.transform = 'scale(1)';
               e.target.style.boxShadow = '0 4px 15px rgba(251, 191, 36, 0.3)';
             }}>
-              <Play size={28} fill="#1f2937" />
+              <Play size={isTabletOrSmaller ? 20 : 28} fill="#1f2937" />
             </button>
 
             <span style={{
               color: '#e0e7ff',
-              fontSize: 'clamp(0.8rem, 2.5vw, 1rem)',
-              fontWeight: '500'
+              fontSize: isTabletOrSmaller ? '0.8rem' : 'clamp(0.8rem, 2.5vw, 1rem)',
+              fontWeight: '500',
+              whiteSpace: isTabletOrSmaller ? 'nowrap' : 'normal'
             }}>
               Watch Our Class Demo
             </span>
@@ -698,7 +717,7 @@ export default function LoggedInHome() {
           flexDirection: 'column',
           gap: 'clamp(1rem, 3vw, 2rem)',
           order: isTabletOrSmaller ? 1 : 2
-        }}>
+      }}>
           <div style={{
             position: 'absolute',
             width: '280px',
@@ -740,7 +759,7 @@ export default function LoggedInHome() {
 
           <div style={{
             position: 'relative',
-            zIndex: 5,
+            zIndex: 10,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
@@ -851,6 +870,287 @@ export default function LoggedInHome() {
         </div>
       </section>
 
+      {/* Why Choose Us Section */}
+      <section style={{ padding: 'clamp(3rem, 8vw, 5rem) clamp(1rem, 5vw, 2rem)', background: '#ffffff', borderTop: '1px solid #e5e7eb' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true, margin: '-100px' }}
+            style={{ textAlign: 'center', marginBottom: 'clamp(2.5rem, 6vw, 4rem)' }}
+          >
+            <h2 style={{
+              fontSize: 'clamp(1.75rem, 6vw, 3rem)',
+              fontWeight: 900,
+              color: '#1f2937',
+              marginBottom: '1rem'
+            }}>
+              Why Choose SkillSync?
+            </h2>
+            <p style={{
+              fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
+              color: '#6b7280',
+              maxWidth: '700px',
+              margin: '0 auto'
+            }}>
+              Empowering learners worldwide with expert-led courses, hands-on projects, and industry-recognized certifications.
+            </p>
+          </motion.div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: 'clamp(1.5rem, 4vw, 2rem)',
+            maxWidth: '1200px'
+          }}>
+            {[
+              {
+                icon: '🎓',
+                title: 'Expert Instructors',
+                description: 'Learn from industry professionals with years of real-world experience and proven track records.'
+              },
+              {
+                icon: '💻',
+                title: 'Hands-On Projects',
+                description: 'Build real projects that matter. Apply concepts immediately with practical, industry-relevant assignments.'
+              },
+              {
+                icon: '🏆',
+                title: 'Recognized Certificates',
+                description: 'Earn certificates that boost your resume and demonstrate your competence to employers worldwide.'
+              },
+              {
+                icon: '🌍',
+                title: 'Global Community',
+                description: 'Connect with thousands of learners, collaborate, share ideas, and grow together in our community.'
+              },
+              {
+                icon: '⏱️',
+                title: 'Learn at Your Pace',
+                description: 'Flexible learning schedule. Access course materials anytime, anywhere, on any device.'
+              },
+              {
+                icon: '💬',
+                title: '24/7 Support',
+                description: 'Get help when you need it. Our support team is always ready to answer your questions.'
+              }
+            ].map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true, margin: '-100px' }}
+                style={{
+                  padding: 'clamp(1.5rem, 4vw, 2rem)',
+                  borderRadius: '1rem',
+                  background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+                  border: '1px solid #e2e8f0',
+                  textAlign: 'center',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = '0 20px 40px rgba(94, 63, 222, 0.1)';
+                  e.currentTarget.style.transform = 'translateY(-8px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>{feature.icon}</div>
+                <h3 style={{
+                  fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
+                  fontWeight: 700,
+                  color: '#1f2937',
+                  marginBottom: '0.75rem'
+                }}>
+                  {feature.title}
+                </h3>
+                <p style={{
+                  fontSize: '0.95rem',
+                  color: '#6b7280',
+                  lineHeight: 1.6
+                }}>
+                  {feature.description}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Top Instructors Section */}
+      <section style={{ padding: 'clamp(3rem, 8vw, 5rem) clamp(1rem, 5vw, 2rem)', background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true, margin: '-100px' }}
+            style={{ textAlign: 'center', marginBottom: 'clamp(2.5rem, 6vw, 4rem)' }}
+          >
+            <h2 style={{
+              fontSize: 'clamp(1.75rem, 6vw, 3rem)',
+              fontWeight: 900,
+              color: '#1f2937',
+              marginBottom: '1rem'
+            }}>
+              Meet Our Top Instructors
+            </h2>
+            <p style={{
+              fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
+              color: '#6b7280',
+              maxWidth: '700px',
+              margin: '0 auto'
+            }}>
+              Learn from the best in the industry. Our instructors are passionate educators and experts in their fields.
+            </p>
+          </motion.div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gap: 'clamp(1.5rem, 4vw, 2rem)',
+            maxWidth: '1200px'
+          }}>
+            {[
+              {
+                name: 'Sarah Johnson',
+                specialty: 'Web Development',
+                image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop',
+                students: '15,000+',
+                rating: 4.9
+              },
+              {
+                name: 'Mike Chen',
+                specialty: 'UI/UX Design',
+                image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
+                students: '12,500+',
+                rating: 4.8
+              },
+              {
+                name: 'Emma Wilson',
+                specialty: 'Digital Marketing',
+                image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop',
+                students: '18,000+',
+                rating: 4.9
+              },
+              {
+                name: 'David Kumar',
+                specialty: 'Data Science',
+                image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop',
+                students: '14,200+',
+                rating: 4.7
+              },
+              {
+                name: 'Lisa Anderson',
+                specialty: 'Video Production',
+                image: 'https://images.unsplash.com/photo-1507527173827-ae90b3639c27?w=400&h=400&fit=crop',
+                students: '10,800+',
+                rating: 4.9
+              },
+              {
+                name: 'James Wilson',
+                specialty: 'Business Strategy',
+                image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop',
+                students: '16,500+',
+                rating: 4.8
+              }
+            ].map((instructor, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true, margin: '-100px' }}
+                style={{
+                  padding: 'clamp(1.5rem, 4vw, 2rem)',
+                  borderRadius: '1.25rem',
+                  background: '#ffffff',
+                  border: '1px solid #e5e7eb',
+                  textAlign: 'center',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = '0 25px 50px rgba(94, 63, 222, 0.15)';
+                  e.currentTarget.style.transform = 'translateY(-10px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                <img
+                  src={instructor.image}
+                  alt={instructor.name}
+                  style={{
+                    width: 'clamp(100px, 20vw, 120px)',
+                    height: 'clamp(100px, 20vw, 120px)',
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                    marginBottom: '1rem',
+                    border: '4px solid #f0f0f0'
+                  }}
+                  onError={(e) => {
+                    e.target.src = 'https://via.placeholder.com/120?text=' + instructor.name.split(' ')[0];
+                  }}
+                />
+                <h3 style={{
+                  fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
+                  fontWeight: 700,
+                  color: '#1f2937',
+                  marginBottom: '0.25rem'
+                }}>
+                  {instructor.name}
+                </h3>
+                <p style={{
+                  fontSize: '0.9rem',
+                  color: '#5E3FDE',
+                  fontWeight: 600,
+                  marginBottom: '0.75rem'
+                }}>
+                  {instructor.specialty}
+                </p>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  gap: '1rem',
+                  fontSize: '0.85rem',
+                  color: '#6b7280',
+                  marginBottom: '1rem'
+                }}>
+                  <span>⭐ {instructor.rating}</span>
+                  <span>👥 {instructor.students}</span>
+                </div>
+                <button style={{
+                  width: '100%',
+                  padding: '0.6rem 1rem',
+                  background: '#5E3FDE',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  fontWeight: 600,
+                  fontSize: '0.875rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.background = '#4a2fa8';
+                  e.target.style.transform = 'scale(1.05)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.background = '#5E3FDE';
+                  e.target.style.transform = 'scale(1)';
+                }}>
+                  View Profile
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Closing statement */}
       <section style={{ padding: '3.5rem 2rem 5rem', background: '#f1f5f9' }}>

@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import CourseCard from '../components/CourseCard';
-import { COURSE_CATEGORIES } from '../../../shared/api';
+import { COURSE_CATEGORIES } from '../../shared/api';
 import { toast } from 'sonner';
 
 export default function AllCourses() {
@@ -10,7 +10,7 @@ export default function AllCourses() {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
-  const { data: coursesData, isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['courses'],
     queryFn: async () => {
       try {
@@ -30,7 +30,7 @@ export default function AllCourses() {
     staleTime: 1000 * 60,
   });
 
-  const courses = coursesData || [];
+  const courses = data || [];
 
   // debounce search
   useMemo(() => {
@@ -56,7 +56,7 @@ export default function AllCourses() {
   return (
     <div className="min-h-screen" style={{background: "#f1f5f9"}}>
       {/* Header */}
-      <div style={{background: "linear-gradient(to right, #9333ea, #a855f7, #6d28d9)", padding: "4rem 1rem"}} className="py-16">
+      <div style={{background: "linear-gradient(to right, #220359, #4906BF)", padding: "4rem 1rem"}}>
         <div className="container mx-auto px-4">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">Explore Courses</h1>
           <p style={{color: "#e9d5ff"}}>Discover and enroll in courses that match your goals</p>

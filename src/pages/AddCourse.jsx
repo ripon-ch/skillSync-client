@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { uploadToImgbb } from '../lib/imgbb';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { COURSE_CATEGORIES } from '../../../shared/api';
+import { COURSE_CATEGORIES } from '../../shared/api';
 import { toast } from 'sonner';
 import { Loader, ArrowLeft } from 'lucide-react';
+import { useEffect } from 'react';
 
 export default function AddCourse() {
-  const { user } = useAuth();
+  const { user, isInstructor } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -20,6 +21,12 @@ export default function AddCourse() {
     category: COURSE_CATEGORIES[0],
     isFeatured: false,
   });
+
+  useEffect(() => {
+    if (!isInstructor) {
+      toast.warning('You are currently a student. By adding a course, you will become an instructor.');
+    }
+  }, [isInstructor]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -77,7 +84,7 @@ export default function AddCourse() {
       </div>
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary via-primary to-accent py-12">
+      <div style={{background: "linear-gradient(to right, #220359, #4906BF)", padding: "3rem 0"}}>
         <div className="container mx-auto px-4">
           <h1 className="text-4xl font-bold text-white mb-2">Add New Course</h1>
           <p className="text-white/90">Share your knowledge with students around the world</p>
@@ -181,7 +188,7 @@ export default function AddCourse() {
               )}
             </div>
 
-            {/* Grid: Price, Duration, Category */}
+            {/* Grid, Duration, Category */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Price */}
               <div>
@@ -248,7 +255,7 @@ export default function AddCourse() {
                 className="w-4 h-4 rounded border-border cursor-pointer"
               />
               <label htmlFor="isFeatured" className="text-sm font-medium text-foreground cursor-pointer">
-                Mark this course as featured
+                Mark this course
               </label>
             </div>
 

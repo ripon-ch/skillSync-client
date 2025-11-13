@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { uploadToImgbb } from '../lib/imgbb';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { COURSE_CATEGORIES } from '../../../shared/api';
+import { COURSE_CATEGORIES } from '../../shared/api';
 import { toast } from 'sonner';
 import { Loader, ArrowLeft } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -106,7 +106,7 @@ export default function UpdateCourse() {
       </div>
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary via-primary to-accent py-12">
+      <div style={{background: "linear-gradient(to right, #220359, #4906BF)", padding: "3rem 0"}}>
         <div className="container mx-auto px-4">
           <h1 className="text-4xl font-bold text-white mb-2">Update Course</h1>
           <p className="text-white/90">Make changes to your course details</p>
@@ -195,7 +195,7 @@ export default function UpdateCourse() {
               )}
             </div>
 
-            {/* Grid: Price, Duration, Category */}
+            {/* Grid, Duration, Category */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Price */}
               <div>
@@ -262,7 +262,7 @@ export default function UpdateCourse() {
                 className="w-4 h-4 rounded border-border cursor-pointer"
               />
               <label htmlFor="isFeatured" className="text-sm font-medium text-foreground cursor-pointer">
-                Mark this course as featured
+                Mark this course
               </label>
             </div>
 

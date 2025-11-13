@@ -66,7 +66,7 @@ export default function Register() {
       });
 
       toast.success('Account created successfully!');
-      navigate('/', { replace: true });
+      navigate('/', { replace });
     } catch (error) {
       toast.error(error.message || 'Failed to create account');
     } finally {
@@ -80,7 +80,7 @@ export default function Register() {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       toast.success('Registration successful!');
-      navigate('/', { replace: true });
+      navigate('/', { replace });
     } catch (error) {
       toast.error(error.message || 'Google registration failed');
     } finally {
@@ -235,7 +235,7 @@ export default function Register() {
               color: '#3c4043',
               border: '1px solid #dadce0',
               borderRadius: '6px',
-              fontWeight: 600,
+              fontWeight: 500,
               cursor: loading ? 'not-allowed' : 'pointer',
               opacity: loading ? 0.7 : 1
             }}

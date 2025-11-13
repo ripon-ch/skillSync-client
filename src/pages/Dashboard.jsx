@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { BookOpen, Plus, Users, X as CloseIcon, Upload as UploadIcon } from 'lucide-react';
+import { BookOpen, Plus, Users, X, Upload } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { auth } from '../lib/firebase';
 import { updateProfile, updateEmail } from 'firebase/auth';
@@ -49,7 +49,7 @@ export default function Dashboard() {
           const res = await fetch(`/api/courses/user/my-courses?email=${encodeURIComponent(user.email)}`);
           if (res.ok) {
             const data = await res.json();
-            created = Array.isArray(data) ? data.length : 0;
+            created = Array.isArray(data) ? data.length : data.length;
           }
         } catch {}
 
@@ -70,7 +70,7 @@ export default function Dashboard() {
           try {
             const key = `enrollments:${user.email}`;
             const localIds = JSON.parse(localStorage.getItem(key) || '[]');
-            enrolled = Array.isArray(localIds) ? localIds.length : 0;
+            enrolled = Array.isArray(localIds) ? localIds.length : localIds.length;
           } catch {}
         }
 
@@ -167,7 +167,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary via-primary to-accent py-12">
+      <div style={{background: "linear-gradient(to right, #220359, #4906BF)", padding: "3rem 0"}}>
         <div className="container mx-auto px-4">
           <h1 className="text-4xl font-bold text-white mb-2">Dashboard</h1>
           <p className="text-white/90">Welcome back, {user?.displayName || 'User'}!</p>
@@ -245,7 +245,7 @@ export default function Dashboard() {
               onClick={() => setProfileOpen(false)}
               aria-label="Close"
             >
-              <CloseIcon size={18} />
+              <X size={18} />
             </button>
             <h3 className="text-xl font-bold text-foreground mb-4">Edit Profile</h3>
             <form onSubmit={saveProfile} className="space-y-4">
@@ -257,7 +257,7 @@ export default function Dashboard() {
                   onError={(e) => (e.currentTarget.src = 'https://i.pravatar.cc/120')}
                 />
                 <label className="inline-flex items-center gap-2 px-3 py-2 border border-border rounded-lg cursor-pointer text-sm font-medium">
-                  <UploadIcon size={16} /> {uploadingImage ? 'Uploading…' : 'Upload Image'}
+                  <Upload size={16} /> {uploadingImage ? 'Uploading…' : 'Upload Image'}
                   <input
                     type="file"
                     accept="image/*"
@@ -299,7 +299,23 @@ export default function Dashboard() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 disabled:opacity-50"
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: '#5E3FDE',
+                    color: '#ffffff',
+                    borderRadius: '0.5rem',
+                    fontWeight: '600',
+                    border: 'none',
+                    cursor: saving ? 'not-allowed' : 'pointer',
+                    opacity: saving ? 0.7 : 1,
+                    transition: 'all 0.3s'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!saving) e.currentTarget.style.background = '#4a2fa8';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!saving) e.currentTarget.style.background = '#5E3FDE';
+                  }}
                 >
                   {saving ? 'Saving…' : 'Save Changes'}
                 </button>

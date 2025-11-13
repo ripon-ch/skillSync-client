@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ReviewForm from '../components/ReviewForm';
 import ReviewDisplay from '../components/ReviewDisplay';
+import NotesForm from '../components/NotesForm';
 
 export default function CourseDetails() {
   const { id } = useParams();
@@ -16,17 +17,17 @@ export default function CourseDetails() {
   const [reviewsRefresh, setReviewsRefresh] = useState(0);
   const queryClient = useQueryClient();
 
-  const { data: course, isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['course', id],
     queryFn: async () => {
       const response = await fetch(`/api/courses/${id}`);
       if (!response.ok) throw new Error('Course not found');
       return response.json();
     },
-    retry: 1,
+    retry: 3,
   });
 
-  const { data: enrollment, refetch: refetchEnrollment } = useQuery({
+  const { data: enrollment, refetch } = useQuery({
     queryKey: ['enrollment', id, user?.email],
     queryFn: async () => {
       if (!user?.email) return { enrolled: false };
@@ -62,7 +63,7 @@ export default function CourseDetails() {
         try { data = await response.json(); } catch {}
         if (data && (data.error === 'Already enrolled in this course' || data.error === 'Already enrolled')) {
           toast.success('Already enrolled');
-          await refetchEnrollment();
+          await refetch();
           queryClient.invalidateQueries({ queryKey: ['enrollment', id, user.email] });
           navigate('/my-enrolled-courses');
           return;
@@ -76,7 +77,7 @@ export default function CourseDetails() {
           }
         } catch {}
         toast.success('Successfully enrolled in the course!');
-        await refetchEnrollment();
+        await refetch();
         queryClient.invalidateQueries({ queryKey: ['enrollment', id, user.email] });
         navigate('/my-enrolled-courses');
         return;
@@ -91,7 +92,7 @@ export default function CourseDetails() {
         }
       } catch {}
       toast.success('Successfully enrolled in the course!');
-      await refetchEnrollment();
+      await refetch();
       queryClient.invalidateQueries({ queryKey: ['enrollment', id, user.email] });
       navigate('/my-enrolled-courses');
     } catch (error) {
@@ -104,7 +105,7 @@ export default function CourseDetails() {
 
   if (isLoading) return <LoadingSpinner />;
 
-  if (!course) {
+  if (!data) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -134,25 +135,25 @@ export default function CourseDetails() {
       </div>
 
       {/* Course Header */}
-      <div className="bg-gradient-to-r from-primary via-primary to-accent">
+      <div style={{background: "linear-gradient(to right, #220359, #4906BF)"}}>
         <div className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Content */}
             <div className="lg:col-span-2">
               <div className="inline-block px-3 py-1 bg-white/20 text-white rounded-full text-sm font-semibold mb-4">
-                {course.category}
+                {data.category}
               </div>
-              <h1 className="text-4xl font-bold text-white mb-4">{course.title}</h1>
-              <p className="text-white/90 text-lg mb-6">{course.description}</p>
+              <h1 className="text-4xl font-bold text-white mb-4">{data.title}</h1>
+              <p className="text-white/90 text-lg mb-6">{data.description}</p>
               
               <div className="flex flex-wrap gap-6 text-white">
                 <div className="flex items-center gap-2">
                   <Clock size={20} />
-                  <span>{course.duration}</span>
+                  <span>{data.duration}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <BookOpen size={20} />
-                  <span>{course.instructor}</span>
+                  <span>{data.instructor}</span>
                 </div>
               </div>
             </div>
@@ -162,23 +163,99 @@ export default function CourseDetails() {
               <div className="mb-6">
                 <p className="text-muted-foreground text-sm mb-1">Price</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-bold text-foreground">${course.price}</span>
+                  <span className="text-4xl font-bold text-foreground">${data.price}</span>
                 </div>
               </div>
 
-              <button
-                onClick={handleEnroll}
-                disabled={isEnrolling || isEnrolled}
-                className="w-full py-3 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isEnrolled ? 'Already Enrolled' : isEnrolling ? 'Enrolling...' : 'Enroll Now'}
-              </button>
+              {user?.email === data.instructorEmail ? (
+                <div className="space-y-2">
+                  <button
+                    onClick={() => navigate(`/update-course/${id}`)}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      background: '#e5e7eb',
+                      color: '#1f2937',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.5rem',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#d1d5db'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = '#e5e7eb'}
+                  >
+                    Edit Course
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (window.confirm('Are you sure you want to delete this course?')) {
+                        try {
+                          const response = await fetch(`/api/courses/${id}`, { method: 'DELETE' });
+                          if (response.ok) {
+                            toast.success('Course deleted');
+                            navigate('/my-courses');
+                          }
+                        } catch (err) {
+                          toast.error('Failed to delete course');
+                        }
+                      }
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      background: '#fee2e2',
+                      color: '#dc2626',
+                      border: '1px solid #fca5a5',
+                      borderRadius: '0.5rem',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#fecaca'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = '#fee2e2'}
+                  >
+                    Delete Course
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <button
+                    onClick={handleEnroll}
+                    disabled={isEnrolling || isEnrolled}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      background: isEnrolled ? '#cbd5e1' : 'linear-gradient(135deg, #4c1d95, #6d28d9)',
+                      color: isEnrolled ? '#6b7280' : '#ffffff',
+                      border: 'none',
+                      borderRadius: '0.5rem',
+                      fontWeight: '600',
+                      cursor: isEnrolling || isEnrolled ? 'not-allowed' : 'pointer',
+                      opacity: isEnrolling || isEnrolled ? 0.7 : 1,
+                      transition: 'all 0.3s'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isEnrolling && !isEnrolled) {
+                        e.currentTarget.style.background = 'linear-gradient(135deg, #3d1672, #5a20c1)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isEnrolling && !isEnrolled) {
+                        e.currentTarget.style.background = 'linear-gradient(135deg, #4c1d95, #6d28d9)';
+                      }
+                    }}
+                  >
+                    {isEnrolled ? 'Already Enrolled' : isEnrolling ? 'Enrolling...' : 'Enroll Now'}
+                  </button>
 
-              <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm text-green-700">
-                  ✓ Lifetime access to course materials
-                </p>
-              </div>
+                  <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-sm text-green-700">
+                      ✓ Lifetime access to course materials
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -190,8 +267,8 @@ export default function CourseDetails() {
           {/* Course Image */}
           <div className="w-full h-64 md:h-80 lg:h-96 rounded-lg overflow-hidden mb-8 border border-border">
             <img
-              src={course.image}
-              alt={course.title}
+              src={data.image}
+              alt={data.title}
               className="w-full h-full object-cover"
             />
           </div>
@@ -200,7 +277,7 @@ export default function CourseDetails() {
           <div className="bg-card border border-border rounded-lg p-8 mb-8">
             <h2 className="text-2xl font-bold text-foreground mb-4">About This Course</h2>
             <p className="text-muted-foreground leading-relaxed mb-4">
-              {course.description}
+              {data.description}
             </p>
             <p className="text-muted-foreground leading-relaxed">
               This comprehensive course is designed to take you from beginner to advanced level. You'll learn industry best practices, real-world applications, and gain hands-on experience with practical projects.
@@ -233,17 +310,22 @@ export default function CourseDetails() {
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary">
                 <img
-                  src={`https://via.placeholder.com/150?text=${encodeURIComponent(course.instructor)}`}
-                  alt={course.instructor}
+                  src={`https://via.placeholder.com/150?text=${encodeURIComponent(data.instructor)}`}
+                  alt={data.instructor}
                   className="w-full h-full object-cover"
                 />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-foreground">{course.instructor}</h3>
+                <h3 className="text-lg font-semibold text-foreground">{data.instructor}</h3>
                 <p className="text-muted-foreground">Expert Instructor</p>
               </div>
             </div>
           </div>
+
+          {/* Notes Section - Only show if enrolled */}
+          {isEnrolled && (
+            <NotesForm courseId={id} />
+          )}
 
           {/* Reviews Section */}
           <ReviewForm courseId={id} onReviewSubmitted={() => setReviewsRefresh((n) => n + 1)} />
