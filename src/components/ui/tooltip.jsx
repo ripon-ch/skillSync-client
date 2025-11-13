@@ -1,5 +1,3 @@
-// Path: src/components/ui/tooltip.jsx
-
 import * as React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
@@ -11,7 +9,6 @@ const Tooltip = TooltipPrimitive.Root;
 
 const TooltipTrigger = TooltipPrimitive.Trigger;
 
-// Removed TypeScript Generics (<...>) and Type Annotations
 const TooltipContent = React.forwardRef(({ className, sideOffset = 4, ...props }, ref) => (
   <TooltipPrimitive.Content
     ref={ref}
@@ -23,7 +20,6 @@ const TooltipContent = React.forwardRef(({ className, sideOffset = 4, ...props }
     {...props}
   />
 ));
-
 TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };
