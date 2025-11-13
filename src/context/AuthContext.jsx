@@ -10,28 +10,56 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isInstructor, setIsInstructor] = useState(false);
+
+  const checkIfInstructor = async (email) => {
+    try {
+      const response = await fetch(`/api/courses/user/my-courses?email=${encodeURIComponent(email)}`);
+      const courses = await response.json();
+      return Array.isArray(courses) && courses.length > 0;
+    } catch (err) {
+      console.error('Error checking instructor status:', err);
+      return false;
+    }
+  };
 
   useEffect(() => {
+    let isMounted = true;
+
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       try {
         if (currentUser) {
-          setUser({
-            uid: currentUser.uid,
-            email: currentUser.email,
-            displayName: currentUser.displayName,
-            photoURL: currentUser.photoURL,
-          });
+          const instructorStatus = await checkIfInstructor(currentUser.email);
+          if (isMounted) {
+            setIsInstructor(instructorStatus);
+            setUser({
+              uid: currentUser.uid,
+              email: currentUser.email,
+              displayName: currentUser.displayName,
+              photoURL: currentUser.photoURL,
+            });
+          }
         } else {
-          setUser(null);
+          if (isMounted) {
+            setUser(null);
+            setIsInstructor(false);
+          }
         }
       } catch (err) {
-        setError(err.message);
+        if (isMounted) {
+          setError(err.message);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     });
 
-    return unsubscribe;
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, []);
 
   const refreshUser = () => {
@@ -75,7 +103,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, logout, uploadProfilePhoto, removeProfilePhoto, refreshUser }}>
+    <AuthContext.Provider value={{ user, loading, error, logout, uploadProfilePhoto, removeProfilePhoto, refreshUser, isInstructor }}>
       {children}
     </AuthContext.Provider>
   );

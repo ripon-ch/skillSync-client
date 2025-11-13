@@ -10,7 +10,7 @@ export function ThemeProvider({ children }) {
       return saved === 'dark';
     }
     // Check system preference
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return window.matchMedia('(prefers-color-scheme)').matches;
   });
 
   useEffect(() => {
